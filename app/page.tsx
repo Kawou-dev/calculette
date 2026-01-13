@@ -56,7 +56,7 @@ export default function MatrixCalculator() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 p-6">
+    <main className="min-h-screen  bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-center mb-8">
          Calculatrice de Produit Matriciel
       </h1>
@@ -79,7 +79,7 @@ export default function MatrixCalculator() {
         />
       </div>
 
-      <div className="text-center mt-6">
+      <div className="text-center mt-4">
         <button
           onClick={generateMatrices}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -90,34 +90,56 @@ export default function MatrixCalculator() {
       </div>
 
       {/* Matrices */}
-      <div className="flex flex-col md:flex-row justify-center gap-10 mt-10">
-        {A.length > 0 && (
-          <MatrixUI title="A" matrix={A} setMatrix={setA} update={updateMatrix} />
-        )}
-        {B.length > 0 && (
-          <MatrixUI title="B" matrix={B} setMatrix={setB} update={updateMatrix} />
-        )}
-      </div>
+     
+     
+     
+      <div className="  flex items-center justify-between  gap-10 ">
+      
+      
+        
+          <div className=" flex gap-3 mt-12">
+          {A.length > 0 && (
+            <MatrixUI title="A" matrix={A} setMatrix={setA} update={updateMatrix} />
+          )}
+          {B.length > 0 && (
+            <MatrixUI title="B" matrix={B} setMatrix={setB} update={updateMatrix} />
+          )}
+          </div>
+      
+         
+      
+        {/*  CALCUL A X B */}
 
-      {/* Calcul */}
+        <div className=" mx-4">
       {A.length > 0 && B.length > 0 && (
-        <div className="text-center mt-8">
-          <button
-            onClick={multiply}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-          >
-            Calculer A × B
-          </button>
+          <div className="text-center mt-24">
+            <button
+              onClick={multiply}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+              Calculer A × B
+            </button>
+          </div>
+        )}
         </div>
-      )}
 
-      {/* Résultat */}
-      {result && (
-        <div className="mt-10 text-center">
-          <h2 className="text-xl font-semibold mb-4">Résultat</h2>
-          <MatrixUI matrix={result} readOnly />
+
+
+        <div className="flex ">
+        {/* Résultat */}
+        {result && (
+          <div className="mt-2  flex flex-col  items-center">
+            <h2 className="text-xl font-semibold mb-4">Résultat</h2>
+            <MatrixUI matrix={result} readOnly />
+          </div>
+        )}
         </div>
-      )}
+        
+
+    
+    
+      </div>
+    
     </main>
   );
 }
