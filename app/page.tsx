@@ -1,65 +1,213 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+
+type Matrix = number[][];
+
+export default function MatrixCalculator() {
+  const [rowsA, setRowsA] = useState<number>(2);
+  const [colsA, setColsA] = useState<number>(2);
+  const [rowsB, setRowsB] = useState<number>(2);
+  const [colsB, setColsB] = useState<number>(2);
+
+  const [A, setA] = useState<Matrix>([]);
+  const [B, setB] = useState<Matrix>([]);
+  const [result, setResult] = useState<Matrix | null>(null);
+  const [error, setError] = useState<string>("");
+
+  const generateMatrices = () => {
+    if (colsA !== rowsB) {
+      setError("Les colonnes de A doivent être égales aux lignes de B.");
+      return;
+    }
+
+    setError("");
+    setResult(null);
+
+    setA(Array.from({ length: rowsA }, () => Array(colsA).fill(0)));
+    setB(Array.from({ length: rowsB }, () => Array(colsB).fill(0)));
+  };
+
+  const updateMatrix = (
+    matrix: Matrix,
+    setMatrix: React.Dispatch<React.SetStateAction<Matrix>>,
+    i: number,
+    j: number,
+    value: number
+  ) => {
+    const copy = matrix.map(row => [...row]);
+    copy[i][j] = value;
+    setMatrix(copy);
+  };
+
+  const multiply = () => {
+    const res: Matrix = Array.from({ length: rowsA }, () =>
+      Array(colsB).fill(0)
+    );
+
+    for (let i = 0; i < rowsA; i++) {
+      for (let j = 0; j < colsB; j++) {
+        for (let k = 0; k < colsA; k++) {
+          res[i][j] += A[i][k] * B[k][j];
+        }
+      }
+    }
+    setResult(res);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="min-h-screen bg-gray-100 p-6">
+      <h1 className="text-3xl font-bold text-center mb-8">
+         Calculatrice de Produit Matriciel
+      </h1>
+
+      {/* Dimensions */}
+      <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
+        <DimensionBlock
+          title="Matrice A"
+          rows={rowsA}
+          cols={colsA}
+          setRows={setRowsA}
+          setCols={setColsA}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <DimensionBlock
+          title="Matrice B"
+          rows={rowsB}
+          cols={colsB}
+          setRows={setRowsB}
+          setCols={setColsB}
+        />
+      </div>
+
+      <div className="text-center mt-6">
+        <button
+          onClick={generateMatrices}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Générer les matrices
+        </button>
+        {error && <p className="text-red-500 mt-3">{error}</p>}
+      </div>
+
+      {/* Matrices */}
+      <div className="flex flex-col md:flex-row justify-center gap-10 mt-10">
+        {A.length > 0 && (
+          <MatrixUI title="A" matrix={A} setMatrix={setA} update={updateMatrix} />
+        )}
+        {B.length > 0 && (
+          <MatrixUI title="B" matrix={B} setMatrix={setB} update={updateMatrix} />
+        )}
+      </div>
+
+      {/* Calcul */}
+      {A.length > 0 && B.length > 0 && (
+        <div className="text-center mt-8">
+          <button
+            onClick={multiply}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Calculer A × B
+          </button>
         </div>
-      </main>
+      )}
+
+      {/* Résultat */}
+      {result && (
+        <div className="mt-10 text-center">
+          <h2 className="text-xl font-semibold mb-4">Résultat</h2>
+          <MatrixUI matrix={result} readOnly />
+        </div>
+      )}
+    </main>
+  );
+}
+
+/* ================= COMPONENTS ================= */
+
+type DimensionProps = {
+  title: string;
+  rows: number;
+  cols: number;
+  setRows: (v: number) => void;
+  setCols: (v: number) => void;
+};
+
+function DimensionBlock({
+  title,
+  rows,
+  cols,
+  setRows,
+  setCols,
+}: DimensionProps) {
+  return (
+    <div>
+      <h3 className="font-semibold mb-3">{title}</h3>
+      <div className="flex gap-4">
+        <input
+          type="number"
+          min={1}
+          value={rows}
+          onChange={e => setRows(+e.target.value)}
+          className="w-20 border rounded px-2 py-1"
+          placeholder="Lignes"
+        />
+        <input
+          type="number"
+          min={1}
+          value={cols}
+          onChange={e => setCols(+e.target.value)}
+          className="w-24 border rounded px-2 py-1"
+          placeholder="Colonnes"
+        />
+      </div>
+    </div>
+  );
+}
+
+type MatrixProps = {
+  title?: string;
+  matrix: Matrix;
+  setMatrix?: React.Dispatch<React.SetStateAction<Matrix>>;
+  update?: (
+    matrix: Matrix,
+    setMatrix: React.Dispatch<React.SetStateAction<Matrix>>,
+    i: number,
+    j: number,
+    value: number
+  ) => void;
+  readOnly?: boolean;
+};
+
+function MatrixUI({
+  title,
+  matrix,
+  setMatrix,
+  update,
+  readOnly = false,
+}: MatrixProps) {
+  return (
+    <div>
+      {title && <h3 className="font-semibold mb-2 text-center">Matrice {title}</h3>}
+      <div className="inline-block bg-white p-4 rounded-xl shadow">
+        {matrix.map((row, i) => (
+          <div key={i} className="flex">
+            {row.map((val, j) => (
+              <input
+                key={j}
+                type="number"
+                value={val}
+                disabled={readOnly}
+                onChange={e =>
+                  update &&
+                  setMatrix &&
+                  update(matrix, setMatrix, i, j, +e.target.value)
+                }
+                className="w-14 h-10 m-1 text-center border rounded"
+              />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
